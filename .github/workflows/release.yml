@@ -10,14 +10,14 @@ env:
   STAGE: prod
   VERSION: ${{ github.sha }}
 
-  DOCKER_IMAGE_API: ${{ vars.DOCKER_REGISTRY }}/kit/kit-api:${{ github.sha }}
-  DOCKER_IMAGE_WEB: ${{ vars.DOCKER_REGISTRY }}/kit/kit-web:${{ github.sha }}
+  DOCKER_IMAGE_API: ${{ vars.DOCKER_REGISTRY }}/kit/button-kit-api:${{ github.sha }}
+  DOCKER_IMAGE_WEB: ${{ vars.DOCKER_REGISTRY }}/kit/button-kit-web:${{ github.sha }}
 
-  K8S_HOST: kit.lskjs.ru
-  K8S_NAMESPACE: kit
-  K8S_ENV_SECRET_NAME: prod-kit-env
-  K8S_APP_NAME_API: kit-api
-  K8S_APP_NAME_WEB: kit-web
+  K8S_HOST: button-kit.lskjs.ru
+  K8S_NAMESPACE: button-kit
+  K8S_ENV_SECRET_NAME: prod-button-kit-env
+  K8S_APP_NAME_API: button-kit-api
+  K8S_APP_NAME_WEB: button-kit-web
 
 jobs:
   prepare:
@@ -111,7 +111,7 @@ jobs:
           kubectl get ns ${{ env.K8S_NAMESPACE }} || kubectl create ns ${{ env.K8S_NAMESPACE }} && \
           kubectl create secret generic ${{ env.K8S_ENV_SECRET_NAME }} --from-file=./envs/env_file --from-file=./envs/env_js --save-config --dry-run=client -o yaml -n ${{ env.K8S_NAMESPACE }} | kubectl apply -f - -n ${{ env.K8S_NAMESPACE }} && \
           envsubst < ${{ env.K8S_MANIFEST }} | kubectl apply -f -
-        env: 
+        env:
           K8S_MANIFEST: apps/api/k8s.yaml
           K8S_APP_NAME: ${{ env.K8S_APP_NAME_API }}
           K8S_NAMESPACE: ${{ env.K8S_NAMESPACE }}
@@ -143,7 +143,7 @@ jobs:
           kubectl get ns ${{ env.K8S_NAMESPACE }} || kubectl create ns ${{ env.K8S_NAMESPACE }} && \
           kubectl create secret generic ${{ env.K8S_ENV_SECRET_NAME }} --from-file=./envs/env_file --from-file=./envs/env_js --save-config --dry-run=client -o yaml -n ${{ env.K8S_NAMESPACE }} | kubectl apply -f - -n ${{ env.K8S_NAMESPACE }} && \
           envsubst < ${{ env.K8S_MANIFEST }} | kubectl apply -f -
-        env: 
+        env:
           K8S_MANIFEST: apps/web/k8s.yaml
           K8S_APP_NAME: ${{ env.K8S_APP_NAME_WEB }}
           K8S_NAMESPACE: ${{ env.K8S_NAMESPACE }}
