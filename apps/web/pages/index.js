@@ -15,9 +15,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
-      <div className={styles.center}>
-          <input type="button" >Button</input>
-        </div>
+        <form onSubmit={() => console.log('request sent')}>
+          <input type="text" name="name" />
+          <button type="submit">
+            Button
+          </button>
+        </form>
       </main>
     </>
   )
