@@ -1,0 +1,48 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    padding: 50px;
+    position: relative;
+    border-radius: 12px !important;
+    width: 400px;
+}
+
+.input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    color: #333333;
+    font-size: 16px;
+    cursor: auto;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.loading {
+    background-color: #ccc;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.common {
+    border: 1px solid #3498db;
+}
+
+.error {
+    border: 1px solid #FF6347;
+}
+
+.success {
+    border: 1px solid #3CB371;
+}
+
+.errorMessage {
+    position: absolute;
+    top: 100px;
+    left: 50px;
+    color: red;
+    font-size: 12px;
+}
