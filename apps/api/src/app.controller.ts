@@ -1,5 +1,5 @@
 import { omitNull } from '@lskjs/algos/omitNull';
-import { Controller, Get } from '@nestjs/common';
+import { All, Controller, Get, Req, Res } from '@nestjs/common';
 
 import { AppService } from './app.service';
 
@@ -20,6 +20,11 @@ export class AppController {
       status: 'ok',
       nodejs,
     });
+  }
+
+  @All('/api/getData')
+  getChannels(@Req() req, @Res() res) {
+    return this.appService.getData(req, res);
   }
 
   @Get('*')
