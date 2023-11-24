@@ -1,18 +1,23 @@
-import { FormEvent, useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import clsx from 'clsx';
+
+import DynamicButton from '@/components/DynamicButton';
+
+import styles from './CustomForm.module.css';
 
 import { apiUrl } from '@/config/config';
-import DynamicButton from '@/components/DynamicButton';
-import getColor from '@/utils/getColor';
-import styles from './CustomForm.module.css'
 
 const CustomForm = () => {
-  const [serverResponse, setServerResponse] = useState<{ status?: number | undefined; error?: { message?: string } }>({});
+  const [response, setResponse] = useState<{
+    status?: number | undefined;
+    error?: { message?: string };
+  }>({});
   const [loading, setLoading] = useState<boolean>(false);
-  const [color, setColor] = useState<string>(getColor(0, true));
+  const [variant, setVariant] = useState<string>('common');
   const [text, setText] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<string | undefined>(undefined);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
 
     try {
@@ -21,50 +26,74 @@ const CustomForm = () => {
       const response = await fetch(`${apiUrl}/api/getData`, {
         method: 'POST',
         body: inputValue,
-      })
+      });
 
       const data = await response?.json();
-      setServerResponse(data);
+      setResponse(data);
 
-      setColor(getColor(response?.status, true));
+      setVariant(response?.status === 200 ? 'success' : 'error');
       setText(response?.status === 200 ? 'Success' : 'Error');
       setTimeout(() => {
-        setColor(getColor(0, true));
+        setVariant('common');
         setText(undefined);
       }, 1000);
     } catch (error) {
       console.error(error);
-      setServerResponse({status: 500, error: { message: 'Internal Server Error' }});
+      setResponse({ status: 500, error: { message: 'Internal Server Error' } });
+      setTimeout(() => {
+        setVariant('common');
+        setText(undefined);
+      }, 1000);
     } finally {
       setLoading(false);
     }
   }
-  let inputClasses = `${styles.input}`;
-  if (loading) inputClasses += ` ${styles.loading}`;
-  if (serverResponse?.status === 200) inputClasses += ` ${styles.success}`;
-  if (serverResponse?.status === 500) inputClasses += ` ${styles.error}`;
-  if (serverResponse?.status !== 500 && serverResponse?.status !== 200) inputClasses += ` ${styles.common}`;
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={styles.form}
-    >
+    <form className={styles.form}>
       <input
         type="text"
-        className={inputClasses}
+        className={clsx(styles.input, {
+          [styles.loading]: loading,
+          [styles.success]: response?.status === 200,
+          [styles.error]: response?.status === 500,
+          [styles.common]: ![500, 200].includes(response?.status as number),
+        })}
         placeholder="Enter text"
         onChange={(e) => setInputValue(e.target.value)}
       />
       <DynamicButton
-        buttonColor={color as 'error' | 'common' | 'success' | undefined}
+        variant={variant as 'error' | 'common' | 'success' | undefined}
         loading={loading}
-        buttonText={text}
+        fullWidth
+        onClick={handleSubmit}
+        type="submit"
+        size="medium"
+      >
+        {text}
+      </DynamicButton>
+      <DynamicButton
+        fullWidth
+        size="medium"
+        onClick={async () => {
+          await new Promise((resolve, reject) => {
+            const isSuccess = Math.random() < 0.5;
+            if (isSuccess) {
+              setTimeout(resolve, 1000);
+            } else {
+              setTimeout(reject, 1000);
+            }
+          });
+          console.log('Ok');
+        }}
       />
-      {serverResponse?.error?.message && (
-        <div className={styles.errorMessage}>{serverResponse.error.message}</div>
+      {response?.error?.message ? (
+        <div className={styles.errorMsg}>{response.error.message}</div>
+      ) : (
+        ''
       )}
     </form>
-  )
-}
+  );
+};
 
 export default CustomForm;

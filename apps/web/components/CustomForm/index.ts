@@ -1,3 +1,3 @@
-import CustomForm from "./CustomForm";
+import CustomForm from './CustomForm';
 
 export default CustomForm;

@@ -39,7 +39,7 @@
     border: 1px solid #3CB371;
 }
 
-.errorMessage {
+.errorMsg {
     position: absolute;
     top: 100px;
     left: 50px;

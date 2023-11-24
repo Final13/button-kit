@@ -1,10 +1,16 @@
 .button {
-    padding: 10px;
     border-radius: 5px;
     margin-top: 30px;
     color: #f2f2f2;
     font-size: 16px;
     cursor: pointer;
+    min-width: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.width100 {
     width: 100%;
 }
 
@@ -26,4 +32,24 @@
 .loading {
     opacity: 0.7;
     cursor: not-allowed;
+}
+
+.small {
+    padding: 6px 1px;
+}
+
+.medium {
+    padding: 15px 5px;
+}
+
+.large {
+    padding: 21px 7px;
+}
+
+.iconLeft {
+    padding-right: 4px;
+}
+
+.iconRight {
+    padding-left: 4px;
 }
