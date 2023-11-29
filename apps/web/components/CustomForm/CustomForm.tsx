@@ -13,11 +13,12 @@ const CustomForm = () => {
     error?: { message?: string };
   }>({});
   const [loading, setLoading] = useState<boolean>(false);
-  const [variant, setVariant] = useState<string>('common');
-  const [text, setText] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<string | undefined>(undefined);
 
-  async function handleSubmit(event: React.MouseEvent<HTMLButtonElement>) {
+  async function handleSubmit(
+    // eslint-disable-next-line max-len
+    event: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     try {
@@ -30,27 +31,17 @@ const CustomForm = () => {
 
       const data = await response?.json();
       setResponse(data);
-
-      setVariant(response?.status === 200 ? 'success' : 'error');
-      setText(response?.status === 200 ? 'Success' : 'Error');
-      setTimeout(() => {
-        setVariant('common');
-        setText(undefined);
-      }, 1000);
+      return response;
     } catch (error) {
       console.error(error);
       setResponse({ status: 500, error: { message: 'Internal Server Error' } });
-      setTimeout(() => {
-        setVariant('common');
-        setText(undefined);
-      }, 1000);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form className={styles.form}>
+    <form className={styles.form} onSubmit={handleSubmit}>
       <input
         type="text"
         className={clsx(styles.input, {
@@ -62,31 +53,35 @@ const CustomForm = () => {
         placeholder="Enter text"
         onChange={(e) => setInputValue(e.target.value)}
       />
-      <DynamicButton
-        variant={variant as 'error' | 'common' | 'success' | undefined}
-        loading={loading}
-        fullWidth
-        onClick={handleSubmit}
-        type="submit"
-        size="medium"
-      >
-        {text}
+      <DynamicButton type="submit" size="medium">
+        Submit with form onSubmit
+      </DynamicButton>
+      <DynamicButton onClick={handleSubmit} size="medium">
+        Submit by onClick
       </DynamicButton>
       <DynamicButton
-        fullWidth
         size="medium"
         onClick={async () => {
           await new Promise((resolve, reject) => {
             const isSuccess = Math.random() < 0.5;
             if (isSuccess) {
-              setTimeout(resolve, 1000);
+              setTimeout(() => resolve({ status: 200 }), 1000);
             } else {
-              setTimeout(reject, 1000);
+              setTimeout(() => reject({ status: 500 }), 1000);
             }
           });
           console.log('Ok');
         }}
-      />
+      >
+        Action
+      </DynamicButton>
+      <DynamicButton size="medium">Simple button</DynamicButton>
+      <DynamicButton size="medium" variant="success">
+        Simple success button
+      </DynamicButton>
+      <DynamicButton size="medium" variant="error">
+        Simple error button
+      </DynamicButton>
       {response?.error?.message ? (
         <div className={styles.errorMsg}>{response.error.message}</div>
       ) : (

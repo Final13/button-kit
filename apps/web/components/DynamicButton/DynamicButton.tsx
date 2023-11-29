@@ -6,14 +6,13 @@ import styles from './DynamicButton.module.css';
 import type { MouseEventHandler } from 'react';
 
 interface buttonProps {
-  variant?: 'error' | 'success' | 'common' | undefined;
+  variant?: 'error' | 'success' | 'common';
   loading?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
-  buttonText?: string;
   fullWidth?: boolean;
-  size?: string;
+  size?: 'small' | 'medium' | 'large';
   children?: React.ReactNode;
-  type?: string;
+  type?: 'submit' | 'button' | 'reset';
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
   rest?: object;
@@ -23,7 +22,6 @@ const DynamicButton: React.FC<buttonProps> = ({
   variant,
   loading,
   onClick,
-  buttonText,
   fullWidth,
   size,
   children,
@@ -32,20 +30,26 @@ const DynamicButton: React.FC<buttonProps> = ({
   iconRight,
   ...rest
 }) => {
-  const [innerVariant, setVariant] = useState<string>('common');
+  const [innerVariant, setVariant] = useState<buttonProps['variant']>('common');
   const [innerText, setText] = useState<string | undefined>(undefined);
   const [innerLoading, setLoading] = useState<boolean>(false);
   useEffect(() => {
-    setVariant(variant as string);
+    setVariant(variant as buttonProps['variant']);
   }, [variant]);
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if (onClick) {
       event.preventDefault();
       try {
         setLoading(true);
-        await onClick?.(event);
-        setVariant('success');
-        setText('Success');
+        setText('Loading...');
+        const res = await onClick?.(event);
+        if ((res as unknown as { status?: number })?.status === 500) {
+          setVariant('error');
+          setText('Error');
+        } else {
+          setVariant('success');
+          setText('Success');
+        }
         setTimeout(() => {
           setVariant('common');
           setText(undefined);
@@ -73,21 +77,22 @@ const DynamicButton: React.FC<buttonProps> = ({
           [styles.common]: variant === 'common' || innerVariant === 'common',
           [styles.loading]: loading || innerLoading,
         },
-        !['success', 'error'].includes(variant as string) &&
-          !['success', 'error'].includes(innerVariant as string) &&
+        !['success', 'error'].includes((variant as buttonProps['variant']) || '') &&
+          !['success', 'error'].includes((innerVariant as buttonProps['variant']) || '') &&
           styles.common,
         fullWidth && styles.width100,
-        ['small', 'medium', 'large'].includes(size as string)
-          ? styles[size as string]
+        ['small', 'medium', 'large'].includes((size as buttonProps['size']) || '')
+          ? styles[(size as buttonProps['size']) || '']
           : styles.medium,
       )}
       onClick={handleClick}
-      type={type as 'submit' | 'button' | 'reset'}
+      type={type as buttonProps['type']}
       disabled={loading || innerLoading}
       {...rest}
     >
+      {innerText && <div className={styles.overlay}>{innerText}</div>}
       {iconLeft && <span className={styles.iconLeft}>{iconLeft}</span>}
-      <div>{children || innerText || (loading || innerLoading ? 'Loading...' : 'Submit')}</div>
+      <div className={innerText && styles.transparent}>{children || 'Submit'}</div>
       {iconRight && <span className={styles.iconRight}>{iconRight}</span>}
     </button>
   );
